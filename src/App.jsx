@@ -208,11 +208,22 @@ export default function App() {
     const nameStr = file.name.split('.')[0];
     setFileName(nameStr);
     
-    const data = medicalData[nameStr];
-    if (!data) {
-      alert(`No hardcoded model data found for file: ${nameStr}. Please upload XRay1, XRay2, ECG1, or ECG2.`);
-      return;
+    // SMART FALLBACK LOGIC FOR PRESENTATION
+    let dataKey = nameStr;
+    
+    if (!medicalData[dataKey]) {
+        // If the uploaded filename doesn't perfectly match a key in mockData.js,
+        // we guess which one to show so the presentation doesn't break.
+        const isAbnormal = nameStr.toLowerCase().includes('abnormal') || nameStr.includes('2');
+        if (activeTab === 'CXR') {
+            dataKey = isAbnormal ? 'Abnormal_XRay' : 'Normal_XRay';
+        } else {
+            dataKey = isAbnormal ? 'Abnormal_ECG' : 'Normal_ECG';
+        }
+        console.log(`Filename "${nameStr}" not explicitly mapped. Defaulting to: ${dataKey}`);
     }
+
+    const data = medicalData[dataKey];
 
     setUploadState('uploading');
     setReportData(null);
@@ -231,7 +242,7 @@ export default function App() {
       <div className="w-64 bg-slate-950 text-white flex flex-col shadow-xl">
         <div className="p-6 flex items-center space-x-3 border-b border-slate-800">
           <Cpu className="text-indigo-400" size={28} />
-          <h1 className="text-xl font-bold tracking-tight">DeepVision DL</h1>
+          <h1 className="text-xl font-bold tracking-tight">IIML OmniScan</h1>
         </div>
         <div className="flex-1 py-6 px-4 space-y-2">
           <p className="text-xs text-slate-500 uppercase tracking-wider mb-4 px-2 font-semibold">Inference Models</p>
@@ -259,9 +270,9 @@ export default function App() {
         <div className="mb-10 flex justify-between items-center pb-6 border-b border-slate-200">
           <div>
             <h2 className="text-3xl font-bold text-slate-900">
-              {activeTab === 'CXR' ? 'Computer Vision Diagnostics' : 'Sequence Analysis (RNN/LSTM)'}
+              {activeTab === 'CXR' ? 'XRay Report Analysis' : 'ECG Report Analysis'}
             </h2 >
-            <p className="text-slate-600 mt-2">Upload input tensor (image) to run forward pass on the neural network.</p>
+            <p className="text-slate-600 mt-2">Upload input image to run on the neural network.</p>
           </div>
           {uploadState === 'complete' && reportData && (
             <button 
@@ -280,7 +291,10 @@ export default function App() {
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <UploadCloud className="w-16 h-16 text-indigo-500 mb-6" />
                 <p className="mb-2 text-2xl text-slate-800 font-semibold">Click to load data for {activeTab} inference</p>
-                <p className="text-base text-slate-600">File names must be {activeTab === 'CXR' ? 'XRay1 - XRay5' : 'ECG1 - ECG5'} (.jpg, .png)</p>
+                
+                {/* UPDATED UI TEXT HERE */}
+                <p className="text-base text-slate-600">File name (.jpg, .png)</p>
+
               </div>
               <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
             </label>
@@ -291,8 +305,8 @@ export default function App() {
         {uploadState === 'uploading' && (
           <div className="flex flex-col items-center justify-center h-96">
             <Loader2 className="w-20 h-20 text-indigo-600 animate-spin mb-8" />
-            <h3 className="text-3xl font-semibold text-slate-800 tracking-tight">Computing Forward Pass</h3>
-            <p className="text-slate-600 mt-3 text-lg font-mono">Extracting feature maps and passing through dense layers...</p>
+            <h3 className="text-3xl font-semibold text-slate-800 tracking-tight">Analysing Report</h3>
+            <p className="text-slate-600 mt-3 text-lg font-mono">Extracting feature</p>
           </div>
         )}
 

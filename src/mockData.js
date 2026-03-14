@@ -2,12 +2,12 @@
 
 export const medicalData = {
   // --- CHEST X-RAY DATA ---
-  "XRay1": {
+  "Normal_XRay": {
     type: "CXR",
     patientSummary: "No acute abnormalities detected. Cardiac silhouette within normal limits.",
-    confidenceScore: 99.2, // Now represented as Softmax Probability
+    confidenceScore: 99.2, 
     modelTelemetry: {
-      architecture: "Vision Transformer (ViT-B/16)",
+      architecture: "DL Model",
       inferenceTime: "142 ms",
       tensorShape: "1 x 3 x 224 x 224",
       activationMap: "Grad-CAM (Global Average Pooling)"
@@ -38,12 +38,12 @@ export const medicalData = {
       "Bounding box regressions for mass detection returned null."
     ]
   },
-  "XRay2": {
+  "Abnormal_XRay": {
     type: "CXR",
     patientSummary: "Right middle and lower lobe opacification detected. High probability of pneumonia.",
     confidenceScore: 95.8,
     modelTelemetry: {
-      architecture: "ResNet-152 + Feature Pyramid Network",
+      architecture: "DL Model",
       inferenceTime: "185 ms",
       tensorShape: "1 x 3 x 512 x 512",
       activationMap: "Grad-CAM (Conv5_Block3)"
@@ -76,12 +76,12 @@ export const medicalData = {
   },
 
   // --- ECG DATA ---
-  "ECG1": {
+  "Normal_ECG": {
     type: "ECG",
     patientSummary: "Normal Sinus Rhythm. Time-series sequence within standard distribution.",
     confidenceScore: 99.5,
     modelTelemetry: {
-      architecture: "1D-CNN + Bi-Directional LSTM",
+      architecture: "DL Model",
       inferenceTime: "84 ms",
       sequenceLength: "5000 timesteps",
       samplingRate: "500 Hz"
@@ -117,12 +117,12 @@ export const medicalData = {
       "R-R interval variance is minimal, negating arrhythmic probability."
     ]
   },
-  "ECG2": {
+  "Abnormal_ECG": {
     type: "ECG",
     patientSummary: "Atrial Fibrillation with Rapid Ventricular Response (RVR). Sequence irregularity detected.",
     confidenceScore: 97.1,
     modelTelemetry: {
-      architecture: "Temporal Convolutional Network (TCN)",
+      architecture: "DL Model",
       inferenceTime: "112 ms",
       sequenceLength: "5000 timesteps",
       samplingRate: "500 Hz"
