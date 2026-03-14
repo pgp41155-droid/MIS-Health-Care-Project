@@ -283,8 +283,8 @@ export default function App() {
         {uploadState === 'uploading' && (
           <div className="flex flex-col items-center justify-center h-96">
             <Loader2 className="w-20 h-20 text-indigo-600 animate-spin mb-8" />
-            <h3 className="text-3xl font-semibold text-slate-800 tracking-tight">Computing Forward Pass</h3>
-            <p className="text-slate-600 mt-3 text-lg font-mono">Extracting feature maps and passing through dense layers...</p>
+            <h3 className="text-3xl font-semibold text-slate-800 tracking-tight">Analysing Report</h3>
+            <p className="text-slate-600 mt-3 text-lg font-mono">Extracting features</p>
           </div>
         )}
 
