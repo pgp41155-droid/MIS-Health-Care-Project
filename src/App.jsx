@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { UploadCloud, Activity, LayoutDashboard, FileText, CheckCircle, AlertTriangle, Loader2, Maximize2, Zap, Target, Cpu, Server } from 'lucide-react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area, ReferenceLine, ReferenceArea, ScatterChart, Scatter, ZAxis } from 'recharts';
-import { medicalData } from './mockData';
+
+// IMPORT THE NEW RANDOM GENERATORS
+import { medicalData, generateRandomNormalCXR, generateRandomNormalECG } from './mockData';
 
 const WAIT_TIME_MS = 3000; 
 
@@ -9,17 +11,14 @@ const WAIT_TIME_MS = 3000;
 function CxrAnalysisDashboard({ data }) {
   const StatusBadge = ({ status }) => {
     const baseClass = "px-3 py-1 text-xs font-bold rounded-full";
-    if (status === 'Normal') return <span className={`${baseClass} bg-emerald-100 text-emerald-700`}>Normal</span>;
+    if (status === 'Normal' || status === 'Good') return <span className={`${baseClass} bg-emerald-100 text-emerald-700`}>{status}</span>;
     if (status === 'Abnormal' || status === 'Mildly Enlarged') return <span className={`${baseClass} bg-amber-100 text-amber-700`}>{status}</span>;
     return <span className={`${baseClass} bg-slate-100 text-slate-700`}>{status}</span>;
   };
 
   return (
     <div className="space-y-6">
-      
-      {/* 1. Key Metrics & Disease Probability (Top Row) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Numerical Metrics Table */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <h3 className="text-xl font-bold text-slate-800 mb-5 flex items-center"><FileText size={20} className="mr-3 text-indigo-500"/> Morphological Computations</h3>
           <div className="space-y-4">
@@ -38,7 +37,6 @@ function CxrAnalysisDashboard({ data }) {
           </div>
         </div>
 
-        {/* Radar Chart: Multi-Class Softmax Probabilities */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <h3 className="text-xl font-bold text-slate-800 mb-5 flex items-center"><Target size={20} className="mr-3 text-indigo-500"/> Softmax Multi-Class Activation</h3>
           <div className="h-64 w-full">
@@ -55,7 +53,6 @@ function CxrAnalysisDashboard({ data }) {
         </div>
       </div>
 
-      {/* 2. Zonal Opacity Analysis (Interactive Chart) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
           <h3 className="text-xl font-bold text-slate-800 mb-5 flex items-center"><Maximize2 size={20} className="mr-3 text-indigo-500"/> Spatial Zonal Heatmap Data</h3>
@@ -73,7 +70,6 @@ function CxrAnalysisDashboard({ data }) {
           </div>
         </div>
         
-        {/* Zonal Diagram Illustration */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
             <h4 className="text-lg font-bold text-slate-700 mb-5">Grid Matrix</h4>
             <div className="w-48 h-64 border border-slate-200 rounded-lg flex overflow-hidden">
@@ -91,7 +87,6 @@ function CxrAnalysisDashboard({ data }) {
             <p className="text-xs text-slate-400 mt-2">Mapped from tensor output.</p>
         </div>
       </div>
-
     </div>
   );
 }
@@ -106,10 +101,7 @@ function EcgAnalysisDashboard({ data }) {
 
   return (
     <div className="space-y-6">
-      
-      {/* 1. Interval Summary & Key Interpretation (Top Row) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <h3 className="text-xl font-bold text-slate-800 mb-5 flex items-center"><FileText size={20} className="mr-3 text-indigo-500"/> Extracted Vector Metrics</h3>
           <div className="space-y-4">
@@ -130,7 +122,6 @@ function EcgAnalysisDashboard({ data }) {
           </div>
         </div>
 
-        {/* 2. Scatter Plot: Detailed Interval Analysis */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative">
           <h3 className="text-xl font-bold text-slate-800 mb-5 flex items-center"><Target size={20} className="mr-3 text-indigo-500"/> Waveform Feature Geometry</h3>
           <p className="text-sm text-slate-500 mb-5">Calculated durations from multi-channel 1D arrays.</p>
@@ -152,7 +143,6 @@ function EcgAnalysisDashboard({ data }) {
         </div>
       </div>
 
-      {/* 3. Lead Analysis Dashboard (Grid View) */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <h3 className="text-xl font-bold text-slate-800 mb-5 flex items-center"><Zap size={20} className="mr-3 text-indigo-500"/> Channel-Specific ST Amplitude (mm)</h3>
           <div className="grid grid-cols-4 gap-4">
@@ -162,13 +152,12 @@ function EcgAnalysisDashboard({ data }) {
                           <span className="text-lg font-bold">{lead.lead}</span>
                           <span className="text-xs font-mono uppercase">{lead.status}</span>
                       </div>
-                      <span className="text-3xl font-bold">{lead.deviation.toFixed(1)} <span className="text-base font-normal opacity-60">mm</span></span>
+                      <span className="text-3xl font-bold">{(lead.deviation > 0 ? "+" : "") + lead.deviation.toFixed(1)} <span className="text-base font-normal opacity-60">mm</span></span>
                   </div>
               ))}
           </div>
       </div>
 
-      {/* Rhythm Specific Details */}
       <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 grid grid-cols-2 gap-6">
         <div>
             <h3 className="text-xl font-bold text-slate-800 mb-5 flex items-center"><Maximize2 size={20} className="mr-3 text-indigo-500"/> Sequence Pattern Classification</h3>
@@ -182,14 +171,12 @@ function EcgAnalysisDashboard({ data }) {
             </div>
         </div>
         
-        {/* Text Area for DL Findings */}
         <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 shadow-sm relative text-emerald-400 font-mono">
           <h3 className="text-lg font-bold text-white mb-5 flex items-center"><Server size={18} className="mr-3 text-emerald-400"/> Raw NLP Diagnostic Output</h3>
           <div className="absolute top-6 right-6 px-3 py-1 text-[10px] font-bold rounded bg-slate-800 border border-slate-600 text-slate-300 uppercase tracking-widest">Console.log</div>
           <p className="text-xs leading-relaxed mt-2">{data.findingsText}</p>
         </div>
       </div>
-
     </div>
   );
 }
@@ -208,22 +195,16 @@ export default function App() {
     const nameStr = file.name.split('.')[0];
     setFileName(nameStr);
     
-    // SMART FALLBACK LOGIC FOR PRESENTATION
-    let dataKey = nameStr;
-    
-    if (!medicalData[dataKey]) {
-        // If the uploaded filename doesn't perfectly match a key in mockData.js,
-        // we guess which one to show so the presentation doesn't break.
-        const isAbnormal = nameStr.toLowerCase().includes('abnormal') || nameStr.includes('2');
-        if (activeTab === 'CXR') {
-            dataKey = isAbnormal ? 'Abnormal_XRay' : 'Normal_XRay';
-        } else {
-            dataKey = isAbnormal ? 'Abnormal_ECG' : 'Normal_ECG';
-        }
-        console.log(`Filename "${nameStr}" not explicitly mapped. Defaulting to: ${dataKey}`);
-    }
+    let data;
 
-    const data = medicalData[dataKey];
+    // THE MAGIC LOGIC: Check for specific files, otherwise generate random normal data
+    if (nameStr === 'XRay1' || nameStr === 'XRay2' || nameStr === 'ECG1' || nameStr === 'ECG2') {
+        data = medicalData[nameStr];
+    } else {
+        // Dynamic generation based on the active tab
+        data = activeTab === 'CXR' ? generateRandomNormalCXR() : generateRandomNormalECG();
+        console.log(`Dynamic inference generated for undefined file: ${nameStr}`);
+    }
 
     setUploadState('uploading');
     setReportData(null);
@@ -291,10 +272,7 @@ export default function App() {
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <UploadCloud className="w-16 h-16 text-indigo-500 mb-6" />
                 <p className="mb-2 text-2xl text-slate-800 font-semibold">Click to load data for {activeTab} inference</p>
-                
-                {/* UPDATED UI TEXT HERE */}
                 <p className="text-base text-slate-600">File name (.jpg, .png)</p>
-
               </div>
               <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
             </label>
@@ -305,8 +283,8 @@ export default function App() {
         {uploadState === 'uploading' && (
           <div className="flex flex-col items-center justify-center h-96">
             <Loader2 className="w-20 h-20 text-indigo-600 animate-spin mb-8" />
-            <h3 className="text-3xl font-semibold text-slate-800 tracking-tight">Analysing Report</h3>
-            <p className="text-slate-600 mt-3 text-lg font-mono">Extracting feature</p>
+            <h3 className="text-3xl font-semibold text-slate-800 tracking-tight">Computing Forward Pass</h3>
+            <p className="text-slate-600 mt-3 text-lg font-mono">Extracting feature maps and passing through dense layers...</p>
           </div>
         )}
 
@@ -314,10 +292,7 @@ export default function App() {
         {uploadState === 'complete' && reportData && (
           <div className="space-y-6 fade-in">
             
-            {/* Top Row: Global Summary & Model Telemetry */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              {/* Primary Output */}
               <div className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 flex flex-col justify-center lg:col-span-2">
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm text-slate-500 uppercase tracking-wider font-bold">Network Classification Output</p>
@@ -329,7 +304,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Model Telemetry Box */}
               <div className="bg-slate-900 p-6 rounded-3xl shadow-lg border border-slate-700 text-white flex flex-col justify-center">
                   <div className="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
                     <span className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center"><Cpu size={16} className="mr-2"/> Telemetry</span>
@@ -345,7 +319,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Qualitative Insights */}
             <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100">
               <h3 className="text-lg font-bold text-indigo-900 mb-3 flex items-center"><Zap size={18} className="mr-2 text-indigo-500"/> Layer Activation Insights</h3>
               <ul className="space-y-2">
@@ -358,7 +331,6 @@ export default function App() {
               </ul>
             </div>
 
-            {/* Conditional rendering of unique dashboards */}
             {activeTab === 'CXR' && <CxrAnalysisDashboard data={reportData} />}
             {activeTab === 'ECG' && <EcgAnalysisDashboard data={reportData} />}
 
