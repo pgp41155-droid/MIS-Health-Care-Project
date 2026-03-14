@@ -287,7 +287,8 @@ export default function App() {
             <p className="text-slate-600 mt-3 text-lg font-mono">Extracting features</p>
           </div>
         )}
-
+        
+ 
         {/* Dashboard / Report View */}
         {uploadState === 'complete' && reportData && (
           <div className="space-y-6 fade-in">
